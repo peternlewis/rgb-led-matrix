@@ -360,7 +360,7 @@ unsigned int RGBLEDMatrix::nextTimerInterval(void) const {
 void inline timer0InteruptHandler (void){
 	gSingleton->shiftOutCurrentRow();
 	// reload the timer
- 	timer0_write(ESP.getCycleCount() + 84 * gSingleton->nextTimerInterval());
+ 	timer0_write(ESP.getCycleCount() + clockCyclesPerMicrosecond() * gSingleton->nextTimerInterval());
   	// update scan row. Done outside of interrupt stoppage since execution time can
   	// be inconsistent, which would lead to vary brightness in rows.
   	gSingleton->incrementScanRow();
@@ -369,11 +369,9 @@ void inline timer0InteruptHandler (void){
 void RGBLEDMatrix::startScanning(void) {
 	this->setup();
 	
-	noInterrupts();
 	timer0_isr_init();
 	timer0_attachInterrupt(timer0InteruptHandler);
- 	timer0_write(ESP.getCycleCount() + 84 * gSingleton->nextTimerInterval());
-	interrupts();
+ 	timer0_write(ESP.getCycleCount() + clockCyclesPerMicrosecond() * gSingleton->nextTimerInterval());
 }
 
 void RGBLEDMatrix::stopScanning(void) {
